@@ -1,5 +1,83 @@
 package src;
 import java.io.*;
+import java.util.*;
+
+class Board {
+    private final char[][] board;
+
+    public Board(int N, int M) {
+        this.board = new char[N][M];
+    }
+
+    public void printBoard() {
+        for (char[] row : board) {
+            for (char c : row) {
+                System.out.print(c);
+            }
+            System.out.println();
+        }
+    }
+
+    public void placeBlock(Block block, int x, int y) {
+        for (int i = 0; i < block.height(); i++) {
+            if (block.width() >= 0) System.arraycopy(block.block[i], 0, board[y + i], x, block.width());
+        }
+    }
+}
+
+class Block {
+    public char[][] block;
+
+    public Block(String[] parts) {
+        int width = parts[0].length();
+        for (int i = 1; i < parts.length; i++) {
+            if (parts[i].length() > width) {
+                width = parts[i].length();
+            }
+        }
+
+        int width1 = width;
+        int height = parts.length;
+        this.block = new char[height][width1];
+
+        for (int i = 0; i < parts.length; i++) {
+            for (int j = 0; j < parts[i].length(); j++) {
+                block[i][j] = parts[i].charAt(j);
+            }
+        }
+    }
+
+    public int width() {
+        return block[0].length;
+    }
+
+    public int height() {
+        return block.length;
+    }
+
+    public void rotate() {
+        char[][] temp = new char[width()][height()];
+        for (int i = 0; i < height(); i++) {
+            for (int j = 0; j < width(); j++) {
+                temp[j][height() - i - 1] = block[i][j];
+            }
+        }
+        block = temp;
+    }
+
+    public void printBlock() {
+        for (char[] row : block) {
+            for (char c : row) {
+                if (c == '\u0000') {
+                    System.out.print(' ');
+                } else {
+                    System.out.print(c);
+                }
+            }
+            System.out.println();
+        }
+    }
+}
 
 public class Main {
 
@@ -35,9 +113,53 @@ public class Main {
                     default -> throw new IllegalArgumentException("Invalid case type '" + line + "'!");
                 }
 
-                // TODO: Parse the puzzle blocks
+                // Read the blocks
+                int blockCount = 0;
+                List<String> parts = new ArrayList<>();
+                List<Block> blocks = new ArrayList<>();
+
+                while ((line = fileReader.readLine()) != null) {
+                    // Iterate over every block character
+                    for (int i = 0; i < line.length(); i++) {
+                        // Check if the block part is valid
+                        if ('A' + blockCount != line.charAt(i)) {
+                            // Check if the block part is the start of a new block
+                            if (line.charAt(i) == 'A' + blockCount + 1 && i == 0) {
+
+                                // START TEST BLOCK
+                                Block tempBlock = new Block(parts.toArray(new String[0]));
+                                blocks.add(tempBlock);
+                                // for (int j = 0; j < 4; j++) {
+                                //     tempBlock.printBlock();
+                                //     tempBlock.rotate();
+                                //     System.out.println();
+                                // }
+                                // END TEST BLOCK
+
+                                blockCount++;
+                                parts.clear();
+                            } else {
+                                throw new IllegalArgumentException("Invalid block part '" + line + "'!");
+                            }
+                        }
+                    }
+                    // Add block line to the list
+                    parts.add(line);
+                }
 
                 fileReader.close();
+
+                // START TEST BOARD
+                Board board = new Board(parsedCase[0], parsedCase[1]);
+
+                board.placeBlock(blocks.get(4), 1, 1);
+                board.placeBlock(blocks.get(1), 1, 1);
+                // TODO: Placing two blocks on the same position overwrites the first block and empty spaces
+                //       are considered as part of the block resulting in empty spaces also overwriting the first block
+
+                board.printBoard();
+                // END TEST BOARD
+
                 return parsedCase;
 
             }
