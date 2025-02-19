@@ -10,7 +10,7 @@ public class Main {
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
                 System.out.print("Enter the path of the txt file: ");
-                String path = br.readLine();
+                String path = "test/test.txt"; System.out.println("test/test.txt"); // br.readLine();
 
                 BufferedReader fileReader = new BufferedReader(new FileReader(path));
 
@@ -19,7 +19,7 @@ public class Main {
 
                 String[] dimensions = line.split(" ");
                 if (dimensions.length != 3) { // Check if the dimensions are valid
-                    throw new ArrayIndexOutOfBoundsException(line);
+                    throw new IllegalArgumentException("Invalid dimensions '" + line + "'!");
                 }
                 int[] parsedCase = new int[4];
                 for (int i = 0; i < 3; i++) {
@@ -32,7 +32,7 @@ public class Main {
                     case "DEFAULT" -> parsedCase[3] = 0;
                     case "CUSTOM" -> parsedCase[3] = 1;
                     case "PYRAMID" -> parsedCase[3] = 2;
-                    default -> throw new Exception(line);
+                    default -> throw new IllegalArgumentException("Invalid case type '" + line + "'!");
                 }
 
                 // TODO: Parse the puzzle blocks
@@ -43,13 +43,12 @@ public class Main {
             }
 
             catch (IOException e) {
-                System.err.println("\nSpecifed file does not exist!\nTry again with a valid file path.");
+                System.err.println("\nThe system cannot find the file specified!");
+                System.err.println("Please check the path and try again.");
             }
-            catch (ArrayIndexOutOfBoundsException e) {
-                System.err.printf("\nInvalid dimensions '%s'!\nTry again with valid dimensions.\n", e.getMessage());
-            }
-            catch (Exception e) {
-                System.err.printf("\nInvalid case type '%s'!\nTry again with a valid case type.\n", e.getMessage());
+            catch (IllegalArgumentException e) {
+                System.err.println("\n" + e.getMessage());
+                System.err.println("Please check the file and try again.");
             }
 
             Thread.sleep(1000);
@@ -64,10 +63,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
 
         System.out.println("\n=== Penyelesaian IQ Puzzler Pro dengan Algoritma Brute Force ===\n");
-        int[] parsed = parseCase();
-        for (int i : parsed) {
-            System.out.println(i);
-        }
+        parseCase();
 
     }
 }
