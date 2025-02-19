@@ -18,6 +18,9 @@ public class Main {
                 String line = fileReader.readLine();
 
                 String[] dimensions = line.split(" ");
+                if (dimensions.length != 3) { // Check if the dimensions are valid
+                    throw new ArrayIndexOutOfBoundsException(line);
+                }
                 int[] parsedCase = new int[4];
                 for (int i = 0; i < 3; i++) {
                     parsedCase[i] = Integer.parseInt(dimensions[i]);
@@ -29,7 +32,7 @@ public class Main {
                     case "DEFAULT" -> parsedCase[3] = 0;
                     case "CUSTOM" -> parsedCase[3] = 1;
                     case "PYRAMID" -> parsedCase[3] = 2;
-                    default -> throw new Throwable();
+                    default -> throw new Exception(line);
                 }
 
                 // TODO: Parse the puzzle blocks
@@ -42,8 +45,11 @@ public class Main {
             catch (IOException e) {
                 System.err.println("\nSpecifed file does not exist!\nTry again with a valid file path.");
             }
-            catch (Throwable e) {
-                System.err.println("\nInvalid case type!\nTry again with a valid case type.");
+            catch (ArrayIndexOutOfBoundsException e) {
+                System.err.printf("\nInvalid dimensions '%s'!\nTry again with valid dimensions.\n", e.getMessage());
+            }
+            catch (Exception e) {
+                System.err.printf("\nInvalid case type '%s'!\nTry again with a valid case type.\n", e.getMessage());
             }
 
             Thread.sleep(1000);
