@@ -63,14 +63,27 @@ class Board {
         }
     }
 
-    public void placeBlock(Block block, int x, int y) {
+    public void putBlock(Block block, int x, int y) {
         for (int i = 0; i < block.height(); i++) {
             for (int j = 0; j < block.width(); j++) {
                 if (block.block[i][j] == 1) {
-                    board[x + i][y + j].add(block.letter);
+                    board[y + i][x + j].add(block.letter);
                 }
             }
         }
+    }
+
+    public void placeBlock2D (Block block, int x, int y) {
+        for (int i = 0; i < block.height(); i++) {
+            for (int j = 0; j < block.width(); j++) {
+                if (block.block[i][j] == 1 && !board[y + i][x + j].cell.isEmpty()) {
+                    block.printBlock();
+                    System.out.println("cannot be placed at (" + x + ", " + y + ")!");
+                    return;
+                }
+            }
+        }
+        putBlock(block, x, y);
     }
 
     public int getBoardHeight() {
@@ -237,11 +250,9 @@ public class Main {
 
                 Board board = new Board(N, M);
 
-                board.placeBlock(blocks.pop(), 1, 1);
+                board.placeBlock2D(blocks.pop(), 0, 0);
                 Block secondBlock = blocks.pop();
-                secondBlock.rotate();
-                board.placeBlock(secondBlock, 1, 1);
-                board.placeBlock(blocks.pop(), 0, 0);
+                board.placeBlock2D(secondBlock, 0, 1);
 
                 board.printBoard();
                 System.out.println();
