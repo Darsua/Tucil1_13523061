@@ -2,17 +2,62 @@ package src;
 import java.io.*;
 import java.util.*;
 
+class Cell {
+    public List<Character> cell;
+
+    public Cell() {
+        this.cell = new ArrayList<>();
+    }
+
+    public void add(char c) {
+        cell.add(c);
+    }
+
+    public void printCell() {
+        for (char c : cell) {
+            System.out.print(c);
+        }
+    }
+}
+
 class Board {
-    private final char[][] board;
+    private final Cell[][] board;
 
     public Board(int N, int M) {
-        this.board = new char[N][M];
+        this.board = new Cell[N][M];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                board[i][j] = new Cell();
+            }
+        }
     }
 
     public void printBoard() {
-        for (char[] row : board) {
-            for (char c : row) {
-                System.out.print(c);
+        int cellWidth = getBoardHeight();
+
+        for (Cell[] row : board) {
+            for (Cell c : row) {
+                if (c.cell.isEmpty()) {
+                    System.out.print('_');
+                    for (int i = 0; i < cellWidth; i++) {
+                        System.out.print(' ');
+                    }
+                } else {
+                    c.printCell();
+                    for (int i = c.cell.size(); i <= cellWidth; i++) {
+                        System.out.print(' ');
+                    }
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    public void printHeightMap() {
+        for (Cell[] row : board) {
+            for (Cell c : row) {
+                System.out.print(c.cell.size());
+                System.out.print(' ');
             }
             System.out.println();
         }
@@ -20,15 +65,34 @@ class Board {
 
     public void placeBlock(Block block, int x, int y) {
         for (int i = 0; i < block.height(); i++) {
-            if (block.width() >= 0) System.arraycopy(block.block[i], 0, board[y + i], x, block.width());
+            for (int j = 0; j < block.width(); j++) {
+                if (block.block[i][j] == 1) {
+                    board[x + i][y + j].add(block.letter);
+                }
+            }
         }
     }
+
+    public int getBoardHeight() {
+        int maxHeight = 0;
+        for (Cell[] row : board) {
+            for (Cell c : row) {
+                if (c.cell.size() > maxHeight) {
+                    maxHeight = c.cell.size();
+                }
+            }
+        }
+        return maxHeight;
+    }
+
 }
 
 class Block {
-    public char[][] block;
+    public int[][] block;
+    public char letter;
 
     public Block(String[] parts) {
+        this.letter = parts[0].charAt(0);
         int width = parts[0].length();
         for (int i = 1; i < parts.length; i++) {
             if (parts[i].length() > width) {
@@ -38,11 +102,15 @@ class Block {
 
         int width1 = width;
         int height = parts.length;
-        this.block = new char[height][width1];
+        this.block = new int[height][width1];
 
         for (int i = 0; i < parts.length; i++) {
             for (int j = 0; j < parts[i].length(); j++) {
-                block[i][j] = parts[i].charAt(j);
+                if (parts[i].charAt(j) == ' ') {
+                    block[i][j] = 0;
+                } else {
+                    block[i][j] = 1;
+                }
             }
         }
     }
@@ -56,7 +124,7 @@ class Block {
     }
 
     public void rotate() {
-        char[][] temp = new char[width()][height()];
+        int[][] temp = new int[width()][height()];
         for (int i = 0; i < height(); i++) {
             for (int j = 0; j < width(); j++) {
                 temp[j][height() - i - 1] = block[i][j];
@@ -66,17 +134,18 @@ class Block {
     }
 
     public void printBlock() {
-        for (char[] row : block) {
-            for (char c : row) {
-                if (c == '\u0000') {
+        for (int[] row : block) {
+            for (int c : row) {
+                if (c == 0) {
                     System.out.print(' ');
                 } else {
-                    System.out.print(c);
+                    System.out.print(letter);
                 }
             }
             System.out.println();
         }
     }
+
 }
 
 public class Main {
@@ -129,11 +198,11 @@ public class Main {
                                 // START TEST BLOCK
                                 Block tempBlock = new Block(parts.toArray(new String[0]));
                                 blocks.add(tempBlock);
-                                // for (int j = 0; j < 4; j++) {
-                                //     tempBlock.printBlock();
-                                //     tempBlock.rotate();
-                                //     System.out.println();
-                                // }
+//                                for (int j = 0; j < 4; j++) {
+//                                    tempBlock.printBlock();
+//                                    tempBlock.rotate();
+//                                    System.out.println();
+//                                }
                                 // END TEST BLOCK
 
                                 blockCount++;
@@ -153,11 +222,18 @@ public class Main {
                 Board board = new Board(parsedCase[0], parsedCase[1]);
 
                 board.placeBlock(blocks.get(4), 1, 1);
-                board.placeBlock(blocks.get(1), 1, 1);
+                Block secondBlock = blocks.get(4);
+                secondBlock.rotate();
+                board.placeBlock(secondBlock, 1, 1);
+                board.placeBlock(blocks.get(1), 0, 0);
+
+                board.printBoard();
+                System.out.println();
+                board.printHeightMap();
+
                 // TODO: Placing two blocks on the same position overwrites the first block and empty spaces
                 //       are considered as part of the block resulting in empty spaces also overwriting the first block
 
-                board.printBoard();
                 // END TEST BOARD
 
                 return parsedCase;
