@@ -123,41 +123,48 @@ public class Main {
                     default -> throw new IllegalArgumentException("Invalid case type '" + line + "'!");
                 }
 
-                // Read the blocks
+                // Process the blocks
                 int blockCount = 0;
                 List<String> parts = new ArrayList<>();
                 List<Block> blocks = new ArrayList<>();
+                List<Character> letters = new ArrayList<>();
+                for (int i = 'A'; i <= 'Z'; i++) {
+                    letters.add((char) i);
+                }
 
-                while ((line = fileReader.readLine()) != null) {
-                    // Iterate over every block character
-                    for (int i = 0; i < line.length(); i++) {
-                        // Check if the block part is valid
-                        if ('A' + blockCount != line.charAt(i)) {
-                            // Check if the block part is the start of a new block
-                            if (line.charAt(i) == 'A' + blockCount + 1 && i == 0) {
-
-                                // START TEST BLOCK
-                                Block tempBlock = new Block(parts.toArray(new String[0]));
-                                blocks.add(tempBlock);
-                                // for (int j = 0; j < 4; j++) {
-                                //     tempBlock.printBlock();
-                                //     tempBlock.rotate();
-                                //     System.out.println();
-                                // }
-                                // END TEST BLOCK
-
-                                blockCount++;
-                                parts.clear();
-                            } else {
+                // Iterate over every line in the blocks
+                line = fileReader.readLine();
+                while (line != null) {
+                    // Use the first character of the line as the block letter
+                    char currentBlockLetter = line.charAt(0);
+                    // Check if the block letter is a valid character
+                    if (!letters.remove((Character) currentBlockLetter)) {
+                        throw new IllegalArgumentException("Invalid block part '" + line + "'!");
+                    }
+                    // Continue checking the block
+                    while (line != null && line.charAt(0) == currentBlockLetter) {
+                        // Iterate over every character in the line
+                        for (int i = 0; i < line.length(); i++) {
+                            // Check if the block part is valid (only contains the block letter or whitespace)
+                            if (line.charAt(i) != currentBlockLetter && line.charAt(i) != ' ') {
                                 throw new IllegalArgumentException("Invalid block part '" + line + "'!");
                             }
                         }
+                        // Add the block part after checking the characters
+                        parts.add(line);
+                        line = fileReader.readLine();
                     }
-                    // Add block line to the list
-                    parts.add(line);
+                    // Add the block to the list after checking the block parts
+                    blocks.add(new Block(parts.toArray(new String[0])));
+                    blockCount++;
+                    // Clear the block parts after adding the block and continue to the next block
+                    parts.clear();
                 }
-
                 fileReader.close();
+                // Check if the number of blocks is valid
+                if (blockCount != P) {
+                    throw new IllegalArgumentException("Invalid number of blocks (P=" + P + " vs " + blockCount + ")!");
+                }
 
                 // START TEST BOARD
                 Board board = new Board(N, M);
