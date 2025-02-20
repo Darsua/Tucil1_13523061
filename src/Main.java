@@ -82,7 +82,7 @@ class Block {
 public class Main {
 
     @SuppressWarnings("BusyWait")
-    private static int[] parseCase() throws InterruptedException {
+    private static void parseCase() throws InterruptedException {
 
         while (true) {
             try {
@@ -92,24 +92,34 @@ public class Main {
 
                 BufferedReader fileReader = new BufferedReader(new FileReader(path));
 
-                // Read N, M, P
+                // Read N, M, P, S
                 String line = fileReader.readLine();
 
                 String[] dimensions = line.split(" ");
                 if (dimensions.length != 3) { // Check if the dimensions are valid
                     throw new IllegalArgumentException("Invalid dimensions '" + line + "'!");
                 }
-                int[] parsedCase = new int[4];
-                for (int i = 0; i < 3; i++) {
-                    parsedCase[i] = Integer.parseInt(dimensions[i]);
+
+                int N = Integer.parseInt(dimensions[0]),
+                        M = Integer.parseInt(dimensions[1]),
+                        P = Integer.parseInt(dimensions[2]),
+                        S;
+
+                // Input validation for N, M, P
+                if (P < 1) {
+                    throw new IllegalArgumentException("Number of blocks cannot be less than 1! (" + P + ")!");
+                } if (P > 26) {
+                    throw new IllegalArgumentException("Number of blocks > 26! (" + P + ")!");
+                } if (N < 1 || M < 1) {
+                    throw new IllegalArgumentException("Invalid board dimensions (" + N + "x" + M + ")!");
                 }
 
                 // Read the case type
                 line = fileReader.readLine();
                 switch (line) {
-                    case "DEFAULT" -> parsedCase[3] = 0;
-                    case "CUSTOM" -> parsedCase[3] = 1;
-                    case "PYRAMID" -> parsedCase[3] = 2;
+                    case "DEFAULT" -> S = 0;
+                    case "CUSTOM" -> S = 1;
+                    case "PYRAMID" -> S = 2;
                     default -> throw new IllegalArgumentException("Invalid case type '" + line + "'!");
                 }
 
@@ -150,7 +160,7 @@ public class Main {
                 fileReader.close();
 
                 // START TEST BOARD
-                Board board = new Board(parsedCase[0], parsedCase[1]);
+                Board board = new Board(N, M);
 
                 board.placeBlock(blocks.get(4), 1, 1);
                 board.placeBlock(blocks.get(1), 1, 1);
@@ -160,7 +170,7 @@ public class Main {
                 board.printBoard();
                 // END TEST BOARD
 
-                return parsedCase;
+                return;
 
             }
 
