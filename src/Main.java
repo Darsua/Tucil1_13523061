@@ -151,7 +151,7 @@ class Block {
 public class Main {
 
     @SuppressWarnings("BusyWait")
-    private static int[] parseCase() throws InterruptedException {
+    private static void parseCase() throws InterruptedException {
 
         while (true) {
             try {
@@ -161,83 +161,93 @@ public class Main {
 
                 BufferedReader fileReader = new BufferedReader(new FileReader(path));
 
-                // Read N, M, P
+                // Read N, M, P, S
                 String line = fileReader.readLine();
 
                 String[] dimensions = line.split(" ");
                 if (dimensions.length != 3) { // Check if the dimensions are valid
                     throw new IllegalArgumentException("Invalid dimensions '" + line + "'!");
                 }
-                int[] parsedCase = new int[4];
-                for (int i = 0; i < 3; i++) {
-                    parsedCase[i] = Integer.parseInt(dimensions[i]);
+
+                int N = Integer.parseInt(dimensions[0]),
+                    M = Integer.parseInt(dimensions[1]),
+                    P = Integer.parseInt(dimensions[2]),
+                    S;
+
+                // Input validation for N, M, P
+                if (P < 1) {
+                    throw new IllegalArgumentException("Number of blocks cannot be less than 1! (" + P + ")!");
+                } if (P > 26) {
+                    throw new IllegalArgumentException("Number of blocks > 26! (" + P + ")!");
+                } if (N < 1 || M < 1) {
+                    throw new IllegalArgumentException("Invalid board dimensions (" + N + "x" + M + ")!");
                 }
 
                 // Read the case type
                 line = fileReader.readLine();
                 switch (line) {
-                    case "DEFAULT" -> parsedCase[3] = 0;
-                    case "CUSTOM" -> parsedCase[3] = 1;
-                    case "PYRAMID" -> parsedCase[3] = 2;
+                    case "DEFAULT" -> S = 0;
+                    case "CUSTOM" -> S = 1;
+                    case "PYRAMID" -> S = 2;
                     default -> throw new IllegalArgumentException("Invalid case type '" + line + "'!");
                 }
 
-                // Read the blocks
+                // Process the blocks
                 int blockCount = 0;
                 List<String> parts = new ArrayList<>();
-                List<Block> blocks = new ArrayList<>();
+                Stack<Block> blocks = new Stack<>();
+                List<Character> letters = new ArrayList<>();
+                for (int i = 'A'; i <= 'Z'; i++) {
+                    letters.add((char) i);
+                }
 
-                while ((line = fileReader.readLine()) != null) {
-                    // Iterate over every block character
-                    for (int i = 0; i < line.length(); i++) {
-                        // Check if the block part is valid
-                        if ('A' + blockCount != line.charAt(i)) {
-                            // Check if the block part is the start of a new block
-                            if (line.charAt(i) == 'A' + blockCount + 1 && i == 0) {
-
-                                // START TEST BLOCK
-                                Block tempBlock = new Block(parts.toArray(new String[0]));
-                                blocks.add(tempBlock);
-//                                for (int j = 0; j < 4; j++) {
-//                                    tempBlock.printBlock();
-//                                    tempBlock.rotate();
-//                                    System.out.println();
-//                                }
-                                // END TEST BLOCK
-
-                                blockCount++;
-                                parts.clear();
-                            } else {
+                // Iterate over every line in the blocks
+                line = fileReader.readLine();
+                while (line != null) {
+                    // Use the first character of the line as the block letter
+                    char currentBlockLetter = line.charAt(0);
+                    // Check if the block letter is a valid character
+                    if (!letters.remove((Character) currentBlockLetter)) {
+                        throw new IllegalArgumentException("Invalid block part '" + line + "'!");
+                    }
+                    // Continue checking the block
+                    while (line != null && line.charAt(0) == currentBlockLetter) {
+                        // Iterate over every character in the line
+                        for (int i = 0; i < line.length(); i++) {
+                            // Check if the block part is valid (only contains the block letter or whitespace)
+                            if (line.charAt(i) != currentBlockLetter && line.charAt(i) != ' ') {
                                 throw new IllegalArgumentException("Invalid block part '" + line + "'!");
                             }
                         }
+                        // Add the block part after checking the characters
+                        parts.add(line);
+                        line = fileReader.readLine();
                     }
-                    // Add block line to the list
-                    parts.add(line);
+                    // Add the block to the stack after checking the block parts
+                    blocks.push(new Block(parts.toArray(new String[0])));
+                    blockCount++;
+                    // Clear the block parts after adding the block and continue to the next block
+                    parts.clear();
+                }
+                fileReader.close();
+                // Check if the number of blocks is valid
+                if (blockCount != P) {
+                    throw new IllegalArgumentException("Invalid number of blocks (P=" + P + " vs " + blockCount + ")!");
                 }
 
-                fileReader.close();
+                Board board = new Board(N, M);
 
-                // START TEST BOARD
-                Board board = new Board(parsedCase[0], parsedCase[1]);
-
-                board.placeBlock(blocks.get(4), 1, 1);
-                Block secondBlock = blocks.get(4);
+                board.placeBlock(blocks.pop(), 1, 1);
+                Block secondBlock = blocks.pop();
                 secondBlock.rotate();
                 board.placeBlock(secondBlock, 1, 1);
-                board.placeBlock(blocks.get(1), 0, 0);
+                board.placeBlock(blocks.pop(), 0, 0);
 
                 board.printBoard();
                 System.out.println();
                 board.printHeightMap();
 
-                // TODO: Placing two blocks on the same position overwrites the first block and empty spaces
-                //       are considered as part of the block resulting in empty spaces also overwriting the first block
-
-                // END TEST BOARD
-
-                return parsedCase;
-
+                return;
             }
 
             catch (IOException e) {
