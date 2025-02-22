@@ -2,32 +2,102 @@ package src;
 import java.io.*;
 import java.util.*;
 
+record Case(Board board, List<Block> blocks) {}
+
 class Board {
     private final char[][] board;
 
+    // Constructor
     public Board(int N, int M) {
         this.board = new char[N][M];
+        for (char[] row : board) {
+            Arrays.fill(row, '_');
+        }
     }
 
+    // Copy constructor
+    public Board(Board board) {
+        this.board = new char[board.board.length][board.board[0].length];
+        for (int i = 0; i < board.board.length; i++) {
+            System.arraycopy(board.board[i], 0, this.board[i], 0, board.board[i].length);
+        }
+    }
+
+    // Get the width and height of the board
+    public int width() { return board[0].length; }
+    public int height() { return board.length; }
+
+    // Print the board
     public void printBoard() {
         for (char[] row : board) {
             for (char c : row) {
-                System.out.print(c);
+                switch (c) {
+                    case 'A' -> System.out.print("\u001B[31m" + c + " \u001B[0m"); // Red
+                    case 'B' -> System.out.print("\u001B[32m" + c + " \u001B[0m"); // Green
+                    case 'C' -> System.out.print("\u001B[33m" + c + " \u001B[0m"); // Yellow
+                    case 'D' -> System.out.print("\u001B[34m" + c + " \u001B[0m"); // Blue
+                    case 'E' -> System.out.print("\u001B[35m" + c + " \u001B[0m"); // Magenta
+                    case 'F' -> System.out.print("\u001B[36m" + c + " \u001B[0m"); // Cyan
+                    case 'G' -> System.out.print("\u001B[37m" + c + " \u001B[0m"); // White
+                    case 'H' -> System.out.print("\u001B[90m" + c + " \u001B[0m"); // Bright Black
+                    case 'I' -> System.out.print("\u001B[91m" + c + " \u001B[0m"); // Bright Red
+                    case 'J' -> System.out.print("\u001B[92m" + c + " \u001B[0m"); // Bright Green
+                    case 'K' -> System.out.print("\u001B[93m" + c + " \u001B[0m"); // Bright Yellow
+                    case 'L' -> System.out.print("\u001B[94m" + c + " \u001B[0m"); // Bright Blue
+                    case 'M' -> System.out.print("\u001B[95m" + c + " \u001B[0m"); // Bright Magenta
+                    case 'N' -> System.out.print("\u001B[96m" + c + " \u001B[0m"); // Bright Cyan
+                    case 'O' -> System.out.print("\u001B[97m" + c + " \u001B[0m"); // Bright White
+                    case 'P' -> System.out.print("\u001B[1;31m" + c + " \u001B[0m"); // Bold Red
+                    case 'Q' -> System.out.print("\u001B[1;32m" + c + " \u001B[0m"); // Bold Green
+                    case 'R' -> System.out.print("\u001B[1;33m" + c + " \u001B[0m"); // Bold Yellow
+                    case 'S' -> System.out.print("\u001B[1;34m" + c + " \u001B[0m"); // Bold Blue
+                    case 'T' -> System.out.print("\u001B[1;35m" + c + " \u001B[0m"); // Bold Magenta
+                    case 'U' -> System.out.print("\u001B[1;36m" + c + " \u001B[0m"); // Bold Cyan
+                    case 'V' -> System.out.print("\u001B[1;37m" + c + " \u001B[0m"); // Bold White
+                    case 'W' -> System.out.print("\u001B[1;90m" + c + " \u001B[0m"); // Bold Bright Black
+                    case 'X' -> System.out.print("\u001B[1;91m" + c + " \u001B[0m"); // Bold Bright Red
+                    case 'Y' -> System.out.print("\u001B[1;92m" + c + " \u001B[0m"); // Bold Bright Green
+                    case 'Z' -> System.out.print("\u001B[1;93m" + c + " \u001B[0m"); // Bold Bright Yellow
+                    default -> System.out.print(c + " ");
+                }
             }
             System.out.println();
         }
     }
 
-    public void placeBlock(Block block, int x, int y) {
-        for (int i = 0; i < block.height(); i++) {
-            if (block.width() >= 0) System.arraycopy(block.block[i], 0, board[y + i], x, block.width());
+
+    // Place a block on the board
+    public boolean placeBlock(Block block, int x, int y) {
+        // Position check
+        if (x < 0 || y < 0 || x + block.width() > board[0].length || y + block.height() > board.length) {
+            return false;
         }
+
+        // Intersection check
+        for (int i = 0; i < block.height(); i++) {
+            for (int j = 0; j < block.width(); j++) {
+                if (block.block[i][j] != '_' && board[y + i][x + j] != '_') {
+                    return false;
+                }
+            }
+        }
+
+        // Place the block
+        for (int i = 0; i < block.height(); i++) {
+            for (int j = 0; j < block.width(); j++) {
+                if (block.block[i][j] != '_') {
+                    board[y + i][x + j] = block.block[i][j];
+                }
+            }
+        }
+        return true;
     }
 }
 
 class Block {
     public char[][] block;
 
+    // Constructor
     public Block(String[] parts) {
         int width = parts[0].length();
         for (int i = 1; i < parts.length; i++) {
@@ -36,25 +106,25 @@ class Block {
             }
         }
 
-        int width1 = width;
         int height = parts.length;
-        this.block = new char[height][width1];
+        this.block = new char[height][width];
 
-        for (int i = 0; i < parts.length; i++) {
-            for (int j = 0; j < parts[i].length(); j++) {
-                block[i][j] = parts[i].charAt(j);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (j >= parts[i].length() || parts[i].charAt(j) == ' ') {
+                    block[i][j] = '_';
+                } else {
+                    block[i][j] = parts[i].charAt(j);
+                }
             }
         }
     }
 
-    public int width() {
-        return block[0].length;
-    }
+    // Get the width and height of the block
+    public int width() { return block[0].length; }
+    public int height() { return block.length; }
 
-    public int height() {
-        return block.length;
-    }
-
+    // Rotate the block
     public void rotate() {
         char[][] temp = new char[width()][height()];
         for (int i = 0; i < height(); i++) {
@@ -64,104 +134,100 @@ class Block {
         }
         block = temp;
     }
-
-    public void printBlock() {
-        for (char[] row : block) {
-            for (char c : row) {
-                if (c == '\u0000') {
-                    System.out.print(' ');
-                } else {
-                    System.out.print(c);
-                }
-            }
-            System.out.println();
-        }
-    }
 }
 
 public class Main {
 
-    @SuppressWarnings("BusyWait")
-    private static int[] parseCase() throws InterruptedException {
+    @SuppressWarnings({"BusyWait"})
+    private static Case parseCase() throws InterruptedException {
 
         while (true) {
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
                 System.out.print("Enter the path of the txt file: ");
-                String path = "test/test.txt"; System.out.println("test/test.txt"); // br.readLine();
+                String path = br.readLine();
 
                 BufferedReader fileReader = new BufferedReader(new FileReader(path));
 
-                // Read N, M, P
+                // Read N, M, P, S
                 String line = fileReader.readLine();
 
                 String[] dimensions = line.split(" ");
                 if (dimensions.length != 3) { // Check if the dimensions are valid
                     throw new IllegalArgumentException("Invalid dimensions '" + line + "'!");
                 }
-                int[] parsedCase = new int[4];
-                for (int i = 0; i < 3; i++) {
-                    parsedCase[i] = Integer.parseInt(dimensions[i]);
+
+                int N = Integer.parseInt(dimensions[0]),
+                        M = Integer.parseInt(dimensions[1]),
+                        P = Integer.parseInt(dimensions[2]),
+                        S;
+
+                // Input validation for N, M, P
+                if (P < 1) {
+                    throw new IllegalArgumentException("Number of blocks cannot be less than 1! (" + P + ")!");
+                } if (P > 26) {
+                    throw new IllegalArgumentException("Number of blocks > 26! (" + P + ")!");
+                } if (N < 1 || M < 1) {
+                    throw new IllegalArgumentException("Invalid board dimensions (" + N + "x" + M + ")!");
                 }
 
                 // Read the case type
                 line = fileReader.readLine();
                 switch (line) {
-                    case "DEFAULT" -> parsedCase[3] = 0;
-                    case "CUSTOM" -> parsedCase[3] = 1;
-                    case "PYRAMID" -> parsedCase[3] = 2;
+                    case "DEFAULT" -> S = 0;
+                    case "CUSTOM" -> S = 1;
+                    case "PYRAMID" -> S = 2;
                     default -> throw new IllegalArgumentException("Invalid case type '" + line + "'!");
                 }
 
-                // Read the blocks
+                if (S != 0) {
+                    System.err.println("Sorry! Haven't implemented the custom and pyramid cases yet. :(");
+                }
+
+                // Process the blocks
                 int blockCount = 0;
                 List<String> parts = new ArrayList<>();
                 List<Block> blocks = new ArrayList<>();
+                List<Character> letters = new ArrayList<>();
+                for (int i = 'A'; i <= 'Z'; i++) {
+                    letters.add((char) i);
+                }
 
-                while ((line = fileReader.readLine()) != null) {
-                    // Iterate over every block character
-                    for (int i = 0; i < line.length(); i++) {
-                        // Check if the block part is valid
-                        if ('A' + blockCount != line.charAt(i)) {
-                            // Check if the block part is the start of a new block
-                            if (line.charAt(i) == 'A' + blockCount + 1 && i == 0) {
-
-                                // START TEST BLOCK
-                                Block tempBlock = new Block(parts.toArray(new String[0]));
-                                blocks.add(tempBlock);
-                                // for (int j = 0; j < 4; j++) {
-                                //     tempBlock.printBlock();
-                                //     tempBlock.rotate();
-                                //     System.out.println();
-                                // }
-                                // END TEST BLOCK
-
-                                blockCount++;
-                                parts.clear();
-                            } else {
+                // Iterate over every line in the blocks
+                line = fileReader.readLine();
+                while (line != null) {
+                    // Use the first character of the line as the block letter
+                    char currentBlockLetter = line.charAt(0);
+                    // Check if the block letter is a valid character
+                    if (!letters.remove((Character) currentBlockLetter)) {
+                        throw new IllegalArgumentException("Invalid block part '" + line + "'!");
+                    }
+                    // Continue checking the block
+                    while (line != null && line.charAt(0) == currentBlockLetter) {
+                        // Iterate over every character in the line
+                        for (int i = 0; i < line.length(); i++) {
+                            // Check if the block part is valid (only contains the block letter or whitespace)
+                            if (line.charAt(i) != currentBlockLetter && line.charAt(i) != ' ') {
                                 throw new IllegalArgumentException("Invalid block part '" + line + "'!");
                             }
                         }
+                        // Add the block part after checking the characters
+                        parts.add(line);
+                        line = fileReader.readLine();
                     }
-                    // Add block line to the list
-                    parts.add(line);
+                    // Add the block to the list after checking the block parts
+                    blocks.add(new Block(parts.toArray(new String[0])));
+                    blockCount++;
+                    // Clear the block parts after adding the block and continue to the next block
+                    parts.clear();
+                }
+                fileReader.close();
+                // Check if the number of blocks is valid
+                if (blockCount != P) {
+                    throw new IllegalArgumentException("Invalid number of blocks (P=" + P + " vs " + blockCount + ")!");
                 }
 
-                fileReader.close();
-
-                // START TEST BOARD
-                Board board = new Board(parsedCase[0], parsedCase[1]);
-
-                board.placeBlock(blocks.get(4), 1, 1);
-                board.placeBlock(blocks.get(1), 1, 1);
-                // TODO: Placing two blocks on the same position overwrites the first block and empty spaces
-                //       are considered as part of the block resulting in empty spaces also overwriting the first block
-
-                board.printBoard();
-                // END TEST BOARD
-
-                return parsedCase;
-
+                return new Case(new Board(N, M), blocks);
             }
 
             catch (IOException e) {
@@ -182,10 +248,50 @@ public class Main {
         }
     }
 
+    private static int iterationCount = 0;
+
+    private static Board solve(Board board, List<Block> blocks, int index) {
+        if (index == blocks.size()) {
+            return board;
+        }
+
+        // TODO: Implement block flipping as well
+        Block block = blocks.get(index);
+        for (int rotation = 0; rotation < 4; rotation++) {
+            for (int y = 0; y < board.height(); y++) {
+                for (int x = 0; x < board.width(); x++) {
+                    iterationCount++;
+                    Board newBoard = new Board(board);
+                    if (newBoard.placeBlock(block, x, y)) {
+                        Board result = solve(newBoard, blocks, index + 1);
+                        if (result != null) {
+                            return result;
+                        }
+                    }
+                }
+            }
+            block.rotate();
+        }
+        return null;
+    }
+
     public static void main(String[] args) throws InterruptedException {
 
         System.out.println("\n=== Penyelesaian IQ Puzzler Pro dengan Algoritma Brute Force ===\n");
-        parseCase();
 
+        Case initialState = parseCase();
+
+        long startTime = System.currentTimeMillis();
+        Board solution = solve(initialState.board(), initialState.blocks(), 0);
+        long endTime = System.currentTimeMillis();
+
+        if (solution != null) {
+            solution.printBoard();
+        } else {
+            System.out.print("Tidak ada solusi yang ditemukan!");
+        }
+
+        System.out.println("\nWaktu pencarian: " + (endTime - startTime) + "ms");
+        System.out.println("\nBanyak kasus yang ditinjau: " + iterationCount);
     }
 }
