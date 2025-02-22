@@ -148,15 +148,24 @@ class Block {
 
 }
 
-public class Main {
+class Parser {
+
+    private static char getFirstNonSpace(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) != ' ') {
+                return str.charAt(i);
+            }
+        }
+        return ' ';
+    }
 
     @SuppressWarnings({"BusyWait"})
-    private static Case parseCase() throws InterruptedException {
+    public static Case getCase() throws InterruptedException {
 
         while (true) {
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-                System.out.print("Enter the path of the txt file: ");
+                System.out.print("Masukkan path dari file txt: ");
                 String path = br.readLine();
 
                 BufferedReader fileReader = new BufferedReader(new FileReader(path));
@@ -208,14 +217,18 @@ public class Main {
                 // Iterate over every line in the blocks
                 line = fileReader.readLine();
                 while (line != null) {
-                    // Use the first character of the line as the block letter
-                    char currentBlockLetter = line.charAt(0);
+                    // Use the first non-whitespace character of the line as the block letter
+                    char currentBlockLetter = getFirstNonSpace(line);
                     // Check if the block letter is a valid character
                     if (!letters.remove((Character) currentBlockLetter)) {
-                        throw new IllegalArgumentException("Invalid block part '" + line + "'!");
+                        if (line.isEmpty()) {
+                            throw new IllegalArgumentException("Problematic whitespaces present!");
+                        } else {
+                            throw new IllegalArgumentException("Invalid block part '" + line + "'!");
+                        }
                     }
                     // Continue checking the block
-                    while (line != null && line.charAt(0) == currentBlockLetter) {
+                    while (line != null && getFirstNonSpace(line) == currentBlockLetter) {
                         // Iterate over every character in the line
                         for (int i = 0; i < line.length(); i++) {
                             // Check if the block part is valid (only contains the block letter or whitespace)
@@ -259,6 +272,9 @@ public class Main {
             System.out.print(".\n\n");
         }
     }
+}
+
+public class Main {
 
     private static int iterationCount = 0;
 
@@ -293,7 +309,7 @@ public class Main {
 
         System.out.println("\n=== Penyelesaian IQ Puzzler Pro dengan Algoritma Brute Force ===\n");
 
-        Case initialState = parseCase();
+        Case initialState = Parser.getCase();
 
         long startTime = System.currentTimeMillis();
         Board solution = solve(initialState.board(), initialState.blocks(), 0);
