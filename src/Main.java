@@ -458,7 +458,10 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
         while (true) {
-            System.out.print("\nApakah anda ingin menyimpan solusi? (ya/tidak): ");
+            System.out.print("\nApakah anda ingin menyimpan solusi");
+            if (!solution.isFull()) {System.out.print(" parsial");}
+            System.out.print("? (ya/tidak): ");
+
             String input = sc.nextLine();
             if (input.equals("ya")) {
                 Parser.saveSolution(solution, endTime - startTime, iterationCount, initialState.path());
