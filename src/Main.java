@@ -330,10 +330,10 @@ class Parser {
             myWriter.write("\nWaktu pencarian: " + time + "ms\n");
             myWriter.write("\nBanyak kasus yang ditinjau: " + iterations);
 
-            System.out.println("\nFile berhasil disimpan pada " + path
+            System.out.println("\nSolusi berhasil disimpan pada " + path
                     + "!\nTerima kasih telah menggunakan program ini! :3");
         } catch (IOException e) {
-            System.err.println("\nAn error occurred while trying to save the solution!.");
+            System.err.println("\nAn error occurred while trying to save the solution!");
         }
     }
 }
