@@ -37,14 +37,15 @@ BLOCK DATA
 
 ## Example Input File
 ```
-5 5 3
+3 3 3
 DEFAULT
 A  
 AA
+A
  B
 BB
- C
-CC
+C
+C
 ```
 
 ## Output
