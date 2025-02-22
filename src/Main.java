@@ -1,6 +1,10 @@
 package src;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 record Case(Board board, List<Block> blocks, String path) {}
 
@@ -110,6 +114,10 @@ class Board {
             strings[i] = new String(board[i]);
         }
         return strings;
+    }
+
+    public char getBlockAt(int x, int y) {
+        return board[y][x];
     }
 
 }
@@ -330,10 +338,65 @@ class Parser {
             myWriter.write("\nWaktu pencarian: " + time + "ms\n");
             myWriter.write("\nBanyak kasus yang ditinjau: " + iterations);
 
-            System.out.println("\nSolusi berhasil disimpan pada " + path
-                    + "!\nTerima kasih telah menggunakan program ini! :3");
         } catch (IOException e) {
             System.err.println("\nAn error occurred while trying to save the solution!");
+        }
+    }
+}
+
+class Painter {
+
+    private static Color charColor(char letter) {
+        return switch (letter) {
+            case 'A' -> Color.RED;
+            case 'B' -> Color.BLUE;
+            case 'C' -> Color.GREEN;
+            case 'D' -> Color.YELLOW;
+            case 'E' -> Color.ORANGE;
+            case 'F' -> Color.PINK;
+            case 'G' -> Color.CYAN;
+            case 'H' -> Color.MAGENTA;
+            case 'I' -> Color.LIGHT_GRAY;
+            case 'J' -> Color.DARK_GRAY;
+            case 'K' -> new Color(128, 0, 0); // Maroon
+            case 'L' -> new Color(0, 128, 0); // Dark Green
+            case 'M' -> new Color(0, 0, 128); // Navy
+            case 'N' -> new Color(128, 128, 0); // Olive
+            case 'O' -> new Color(128, 0, 128); // Purple
+            case 'P' -> new Color(0, 128, 128); // Teal
+            case 'Q' -> new Color(255, 165, 0); // Orange
+            case 'R' -> new Color(255, 105, 180); // Hot Pink
+            case 'S' -> new Color(75, 0, 130); // Indigo
+            case 'T' -> new Color(139, 69, 19); // Saddle Brown
+            case 'U' -> new Color(210, 105, 30); // Chocolate
+            case 'V' -> new Color(46, 139, 87); // Sea Green
+            case 'W' -> new Color(0, 206, 209); // Dark Turquoise
+            case 'X' -> new Color(255, 140, 0); // Dark Orange
+            case 'Y' -> new Color(70, 130, 180); // Steel Blue
+            case 'Z' -> new Color(123, 104, 238); // Medium Slate Blue
+            default -> Color.BLACK;
+        };
+    }
+
+    public static void saveImage(Board board, String path) {
+        BufferedImage image = new BufferedImage(20*board.width(), 20*board.height(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = image.createGraphics();
+
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, 20*board.width(), 20*board.height());
+
+        for (int x = 0; x < board.width(); x++) {
+            for (int y = 0; y < board.height(); y++) {
+                g.setColor(charColor(board.getBlockAt(x, y)));
+                g.fillRect(x*20, y*20, 20, 20);
+            }
+        }
+
+        File output = new File(path.replace(".txt", "_solution.png"));
+        try {
+            ImageIO.write(image, "png", output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
@@ -399,6 +462,10 @@ public class Main {
             String input = sc.nextLine();
             if (input.equals("ya")) {
                 Parser.saveSolution(solution, endTime - startTime, iterationCount, initialState.path());
+                Painter.saveImage(solution, initialState.path());
+                System.out.println("\nSolusi berhasil disimpan pada " +
+                        initialState.path().replace(".txt", "_solution")
+                        + "!\nTerima kasih telah menggunakan program ini! :3");
                 System.exit(0);
             } else if (input.equals("tidak")) {
                 System.out.println("\nSolusi tidak akan disimpan.\nTerima kasih telah menggunakan program ini! :3");
