@@ -213,8 +213,10 @@ class Parser {
                     default -> throw new IllegalArgumentException("Invalid case type '" + line + "'!");
                 }
 
-                if (S != 0) {
-                    System.err.println("Sorry! Haven't implemented the custom and pyramid cases yet. :(");
+                // Exit for unimplemented pyramid case
+                if (S == 2) {
+                    System.err.println("Sorry! Haven't implemented pyramid cases yet. :(");
+                    System.exit(2);
                 }
 
                 // Process the blocks
@@ -224,6 +226,29 @@ class Parser {
                 List<Character> letters = new ArrayList<>();
                 for (int i = 'A'; i <= 'Z'; i++) {
                     letters.add((char) i);
+                }
+
+                // Process the custom case
+                Block customBlock = null;
+                if (S == 1) {
+                    for (int i = 0; i < N; i++) {
+                        line =  fileReader.readLine();
+                        if (line.length() != M) {
+                            throw new IllegalArgumentException("Invalid custom board dimensions at line " + i + "!");
+                        }
+
+                        char[] lineArr = line.toCharArray();
+                        for (int j = 0; j < M; j++) {
+                            if (lineArr[j] == 'X') {lineArr[j] = ' ';}
+                            else if (lineArr[j] != '.') {
+                                throw new IllegalArgumentException("Invalid custom configuration at '" + line + "'!");
+                            }
+                        }
+                        line = new String(lineArr);
+                        parts.add(line);
+                    }
+                    customBlock = new Block(parts.toArray(new String[0]));
+                    parts.clear();
                 }
 
                 // Iterate over every line in the blocks
@@ -264,7 +289,10 @@ class Parser {
                     throw new IllegalArgumentException("Invalid number of blocks (P=" + P + " vs " + blockCount + ")!");
                 }
 
-                return new Case(new Board(N, M), blocks);
+                // Create the board
+                Board board = new Board(N,M);
+                if (S == 1) { board.placeBlock(customBlock, 0, 0); }
+                return new Case(board, blocks);
             }
 
             catch (IOException e) {
