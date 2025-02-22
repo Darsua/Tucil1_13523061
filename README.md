@@ -12,15 +12,11 @@ This program solves the **IQ Puzzler Pro** puzzle using a **brute force algorith
 - Java 8 or higher
 
 ## How to Run
-1. Compile the program:
+1. Simply run the program:
    ```sh
-   javac -d bin src/Main.java
+   java -jar bin/BruteforceIQ.jar
    ```
-2. Run the program:
-   ```sh
-   java -cp bin src.Main
-   ```
-3. Follow the prompts to enter the path to your input file.
+2. Follow the prompts to enter the path to your input file.
 
 ## Input File Format
 The input file must follow this structure:
