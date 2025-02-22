@@ -1,0 +1,7 @@
+AAAAA
+DBBEC
+DDECC
+
+Waktu pencarian: 2ms
+
+Banyak kasus yang ditinjau: 8866

@@ -1,0 +1,9 @@
+AGGGD
+AABDD
+CCBBE
+CFFEE
+FFFEE
+
+Waktu pencarian: 1024ms
+
+Banyak kasus yang ditinjau: 5198831
