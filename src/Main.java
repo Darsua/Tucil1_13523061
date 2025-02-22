@@ -97,15 +97,15 @@ class Board {
         return true;
     }
 
-    public boolean isFull() {
+    public boolean isNotFull() {
         for (char[] rows : board) {
             for (char c : rows) {
                 if (c == '_') {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
     public String[] toStrings() {
@@ -445,7 +445,7 @@ public class Main {
         if (solution != null) {
             solution.printBoard();
             // Lazy solution compared to checking before brute-forcing
-            if (!solution.isFull()) {
+            if (solution.isNotFull()) {
                 System.out.println("Papan tidak dapat terisi penuh dengan semua balok!");
             }
         } else {
@@ -459,7 +459,7 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         while (true) {
             System.out.print("\nApakah anda ingin menyimpan solusi");
-            if (!solution.isFull()) {System.out.print(" parsial");}
+            if (solution.isNotFull()) {System.out.print(" parsial");}
             System.out.print("? (ya/tidak): ");
 
             String input = sc.nextLine();
