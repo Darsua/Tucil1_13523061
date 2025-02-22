@@ -2,7 +2,7 @@ package src;
 import java.io.*;
 import java.util.*;
 
-record Case(Board board, List<Block> blocks) {}
+record Case(Board board, List<Block> blocks, String path) {}
 
 class Board {
     private final char[][] board;
@@ -102,6 +102,14 @@ class Board {
             }
         }
         return true;
+    }
+
+    public String[] toStrings() {
+        String[] strings = new String[board.length];
+        for (int i = 0; i < board.length; i++) {
+            strings[i] = new String(board[i]);
+        }
+        return strings;
     }
 
 }
@@ -216,7 +224,7 @@ class Parser {
                 // Exit for unimplemented pyramid case
                 if (S == 2) {
                     System.err.println("Sorry! Haven't implemented pyramid cases yet. :(");
-                    System.exit(2);
+                    System.exit(0);
                 }
 
                 // Process the blocks
@@ -234,7 +242,7 @@ class Parser {
                     for (int i = 0; i < N; i++) {
                         line =  fileReader.readLine();
                         if (line.length() != M) {
-                            throw new IllegalArgumentException("Invalid custom board dimensions at line " + i + "!");
+                            throw new IllegalArgumentException("Invalid custom board dimensions at line " + (i+3) + "!");
                         }
 
                         char[] lineArr = line.toCharArray();
@@ -292,7 +300,7 @@ class Parser {
                 // Create the board
                 Board board = new Board(N,M);
                 if (S == 1) { board.placeBlock(customBlock, 0, 0); }
-                return new Case(board, blocks);
+                return new Case(board, blocks, path);
             }
 
             catch (IOException e) {
@@ -310,6 +318,22 @@ class Parser {
             System.out.print(".");
             Thread.sleep(1000);
             System.out.print(".\n\n");
+        }
+    }
+
+    public static void saveSolution(Board board, long time, int iterations, String path) {
+        path = path.replace(".txt", "_solution.txt");
+        try (FileWriter myWriter = new FileWriter(path)) {
+            for (String row: board.toStrings()) {
+                myWriter.write(row + "\n");
+            }
+            myWriter.write("\nWaktu pencarian: " + time + "ms\n");
+            myWriter.write("\nBanyak kasus yang ditinjau: " + iterations);
+
+            System.out.println("\nFile berhasil disimpan pada " + path
+                    + "!\nTerima kasih telah menggunakan program ini! :3");
+        } catch (IOException e) {
+            System.err.println("\nAn error occurred while trying to save the solution!.");
         }
     }
 }
@@ -367,5 +391,19 @@ public class Main {
 
         System.out.println("\nWaktu pencarian: " + (endTime - startTime) + "ms");
         System.out.println("\nBanyak kasus yang ditinjau: " + iterationCount);
+        if (solution == null) {System.exit(0);}
+
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            System.out.print("\nApakah anda ingin menyimpan solusi? (ya/tidak): ");
+            String input = sc.nextLine();
+            if (input.equals("ya")) {
+                Parser.saveSolution(solution, endTime - startTime, iterationCount, initialState.path());
+                System.exit(0);
+            } else if (input.equals("tidak")) {
+                System.out.println("\nSolusi tidak akan disimpan.\nTerima kasih telah menggunakan program ini! :3");
+                System.exit(0);
+            }
+        }
     }
 }
