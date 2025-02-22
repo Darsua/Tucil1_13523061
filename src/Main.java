@@ -134,6 +134,18 @@ class Block {
         }
         block = temp;
     }
+
+    // Flip the block
+    public void flip() {
+        char [][] temp = new char[height()][width()];
+        for (int i = 0; i < height(); i++) {
+            for (int j = 0; j < width(); j++) {
+                temp[i][width() - j - 1] = block[i][j];
+            }
+        }
+        block = temp;
+    }
+
 }
 
 public class Main {
@@ -255,22 +267,24 @@ public class Main {
             return board;
         }
 
-        // TODO: Implement block flipping as well
         Block block = blocks.get(index);
-        for (int rotation = 0; rotation < 4; rotation++) {
-            for (int y = 0; y < board.height(); y++) {
-                for (int x = 0; x < board.width(); x++) {
-                    iterationCount++;
-                    Board newBoard = new Board(board);
-                    if (newBoard.placeBlock(block, x, y)) {
-                        Board result = solve(newBoard, blocks, index + 1);
-                        if (result != null) {
-                            return result;
+        for (int orientation = 0; orientation < 2; orientation++) {
+            for (int rotation = 0; rotation < 4; rotation++) {
+                for (int y = 0; y < board.height(); y++) {
+                    for (int x = 0; x < board.width(); x++) {
+                        iterationCount++;
+                        Board newBoard = new Board(board);
+                        if (newBoard.placeBlock(block, x, y)) {
+                            Board result = solve(newBoard, blocks, index + 1);
+                            if (result != null) {
+                                return result;
+                            }
                         }
                     }
                 }
+                block.rotate();
             }
-            block.rotate();
+            block.flip();
         }
         return null;
     }
@@ -288,7 +302,7 @@ public class Main {
         if (solution != null) {
             solution.printBoard();
         } else {
-            System.out.print("Tidak ada solusi yang ditemukan!");
+            System.out.println("Tidak ada solusi yang ditemukan!");
         }
 
         System.out.println("\nWaktu pencarian: " + (endTime - startTime) + "ms");
