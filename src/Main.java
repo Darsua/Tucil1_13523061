@@ -92,6 +92,18 @@ class Board {
         }
         return true;
     }
+
+    public boolean isFull() {
+        for (char[] rows : board) {
+            for (char c : rows) {
+                if (c == '_') {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 }
 
 class Block {
@@ -317,6 +329,10 @@ public class Main {
 
         if (solution != null) {
             solution.printBoard();
+            // Lazy solution compared to checking before brute-forcing
+            if (!solution.isFull()) {
+                System.out.println("Papan tidak dapat terisi penuh dengan semua balok!");
+            }
         } else {
             System.out.println("Tidak ada solusi yang ditemukan!");
         }
