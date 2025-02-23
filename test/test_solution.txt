@@ -4,6 +4,6 @@ CCBBE
 CFFEE
 FFFEE
 
-Waktu pencarian: 1024ms
+Waktu pencarian: 1125ms
 
 Banyak kasus yang ditinjau: 5198831

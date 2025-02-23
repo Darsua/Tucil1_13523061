@@ -4,6 +4,6 @@ BBBCCCC
 .EEECD.
 ...E...
 
-Waktu pencarian: 42ms
+Waktu pencarian: 44ms
 
 Banyak kasus yang ditinjau: 165000

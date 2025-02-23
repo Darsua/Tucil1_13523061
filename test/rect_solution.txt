@@ -2,6 +2,6 @@ AAAAA
 DBBEC
 DDECC
 
-Waktu pencarian: 2ms
+Waktu pencarian: 4ms
 
 Banyak kasus yang ditinjau: 8866

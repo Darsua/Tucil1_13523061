@@ -3,6 +3,6 @@ CABB
 C__B
 DDDD
 
-Waktu pencarian: 0ms
+Waktu pencarian: 1ms
 
 Banyak kasus yang ditinjau: 26
