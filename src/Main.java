@@ -204,11 +204,14 @@ class Parser {
                 if (dimensions.length != 3) { // Check if the dimensions are valid
                     throw new IllegalArgumentException("Invalid dimensions '" + line + "'!");
                 }
-
-                int N = Integer.parseInt(dimensions[0]),
-                        M = Integer.parseInt(dimensions[1]),
-                        P = Integer.parseInt(dimensions[2]),
-                        S;
+                int N, M, P, S;
+                try {
+                    N = Integer.parseInt(dimensions[0]);
+                    M = Integer.parseInt(dimensions[1]);
+                    P = Integer.parseInt(dimensions[2]);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid dimensions '" + line + "'!");
+                }
 
                 // Input validation for N, M, P
                 if (P < 1) {
